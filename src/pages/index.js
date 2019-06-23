@@ -6,8 +6,8 @@ import { addRandomUser, addUser } from '../redux/actions';
 
 export default () => {
   const dispatch = useDispatch();
-  const userNames = useSelector(
-    state => Object.keys(state.users)
+  const userIds = useSelector(
+    state => state.users.allIds
   );
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export default () => {
           <span>*Email</span>
           <span>Action</span>
         </div>
-        { userNames.map(name => <UserRow key={name} name={name} />)}
+        { userIds.map(id => <UserRow key={id} id={id} />)}
       </div>
       <form onSubmit={handleSubmit}>
         <input type="submit" value="Add User" />

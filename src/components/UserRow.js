@@ -2,8 +2,8 @@ import React, { useCallback, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { delUser, updateUser } from '../redux/users';
 
-export default function User({ name }) {
-  const { user, updateUser, delUser } = useUser(name);
+export default function User({ id }) {
+  const { user, updateUser, delUser } = useUser(id);
   const [isEditing, enableEiditing] = useState(false);
   const [modifiedUser, setModifiedUser] = useState(user);
 
@@ -38,10 +38,10 @@ export default function User({ name }) {
   );
 }
 
-function useUser(name) {
+function useUser(id) {
   const user = useSelector(
-    state => state.users[name],
-    [name],
+    state => state.users.byId[id],
+    [id],
   );
 
   const dispatch = useDispatch();
@@ -53,8 +53,8 @@ function useUser(name) {
       [],
     ),
     delUser: useCallback(
-      () => dispatch(delUser(name)),
-      [name],
+      () => dispatch(delUser(id)),
+      [id],
     ),
   };
 }

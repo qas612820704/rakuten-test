@@ -4,13 +4,14 @@ import { mapValues, pickBy } from 'lodash';
 import * as $ from './constants';
 import user from './user';
 import './typedef';
+import { combineReducers } from 'redux';
 
 /**
  *
  * @param {Object<string, User>} state
  * @param {Action} action
  */
-const users = (state = {}, action) => {
+const byId = (state = {}, action) => {
   switch (action.type) {
     case $.ADD_USER:
       return {
@@ -30,52 +31,94 @@ const users = (state = {}, action) => {
   }
 }
 
+const allIds = (state = [], action) => {
+  switch (action.type) {
+    case $.ADD_USER:
+      return [...state, action.payload.id];
+    case $.DEL_USER:
+      return state.filter(id => id !== action.payload.id);
+    default:
+      return state;
+  }
+}
+
+const nameInUsed = (state = new Set(), action) => {
+  switch (action.type) {
+    case $.ADD_USER:
+      return new Set(state.add(action.payload.name));
+    case $.UPDATE_USER:
+      state.delete(action.original.name);
+      return new Set(state.add(action.payload.name));
+    case $.DEL_USER:
+      state.delete(action.payload.name);
+      return new Set(state);
+    default:
+      return state;
+  }
+}
+
 /**
  * @param {User} user
  */
 export function addUser(user) {
-  return {
-    type: $.ADD_USER,
-    payload: {
-      id: uuid(),
-      ...user
-    },
+  return (dispatch, getState) => {
+    const { nameInUsed } = getState().users;
+
+    if (nameInUsed.has(user.name)) {
+      throw new Error(`${user.name} already in used`);
+    }
+
+    dispatch({
+      type: $.ADD_USER,
+      payload: {
+        id: uuid(),
+        ...user
+      },
+    })
   }
 }
 
 export function addRandomUser() {
-  return {
-    type: $.ADD_USER,
-    payload: {
-      id: uuid(),
-      name: faker.name.firstName(),
-      phone: faker.phone.phoneNumber('09########'),
-      email: faker.internet.email(),
-    }
-  }
+  return addUser({
+    id: uuid(),
+    name: faker.name.firstName(),
+    phone: faker.phone.phoneNumber('09########'),
+    email: faker.internet.email(),
+  });
 }
 
 /**
  *
  * @param {User} user
  */
-export function updateUser(user) {
-  return {
-    type: $.UPDATE_USER,
-    payload: user,
-  };
+export function updateUser(modifiedUser) {
+  return (dispatch, getState) => {
+    const user = getState().users.byId[modifiedUser.id];
+
+    dispatch({
+      type: $.UPDATE_USER,
+      original: user,
+      payload: modifiedUser,
+    })
+  }
 }
 
 /**
  * @param {string} userName
  */
-export function delUser(userId) {
-  return {
-    type: $.DEL_USER,
-    payload: {
-      id: userId
-    },
+export function delUser(id) {
+  return (dispatch, getState) => {
+    const user = getState().users.byId[id];
+
+    dispatch({
+      type: $.DEL_USER,
+      payload: user,
+    });
   }
 }
 
-export default users;
+export default combineReducers({
+  byId,
+  allIds,
+  nameInUsed,
+});

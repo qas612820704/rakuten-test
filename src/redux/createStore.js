@@ -1,4 +1,5 @@
-import { createStore, compose } from 'redux';
+import { createStore, compose, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
 import reducer from './reducer';
 
 // copypasta from https://github.com/gatsbyjs/gatsby/issues/6137#issuecomment-422740799
@@ -11,6 +12,7 @@ const devtools = process.env.NODE_ENV === 'development' && windowGlobal.devTools
 export default () => createStore(
   reducer,
   compose(
+    applyMiddleware(thunk),
     devtools,
   ),
 );

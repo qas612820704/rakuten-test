@@ -14,6 +14,10 @@ const user = (state = {}, action) => {
         ...action.payload,
         number: idCounter++,
       }
+    case $.DEL_USER:
+      return (state.name === action.payload)
+        ? null
+        : state;
     default:
       return state;
   }

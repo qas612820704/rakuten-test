@@ -1,3 +1,4 @@
+import uuid from 'uuid/v4';
 import faker from 'faker';
 import { mapValues, pickBy } from 'lodash';
 import * as $ from './constants';
@@ -12,12 +13,14 @@ import './typedef';
 const users = (state = {}, action) => {
   switch (action.type) {
     case $.ADD_USER:
-      if (state[action.payload.name])
-        throw new Error(`${action.payload.name} already in list`);
-
       return {
         ...state,
-        [action.payload.name]: user(undefined, action),
+        [action.payload.id]: user(undefined, action),
+      };
+    case $.UPDATE_USER:
+      return {
+        ...state,
+        [action.payload.id]: user(state[action.payload.id], action),
       };
     case $.DEL_USER:
         const usersWithDeleted = mapValues(state, u => user(u, action));
@@ -33,7 +36,10 @@ const users = (state = {}, action) => {
 export function addUser(user) {
   return {
     type: $.ADD_USER,
-    payload: user,
+    payload: {
+      id: uuid(),
+      ...user
+    },
   }
 }
 
@@ -41,6 +47,7 @@ export function addRandomUser() {
   return {
     type: $.ADD_USER,
     payload: {
+      id: uuid(),
       name: faker.name.firstName(),
       phone: faker.phone.phoneNumber('09########'),
       email: faker.internet.email(),
@@ -49,12 +56,25 @@ export function addRandomUser() {
 }
 
 /**
+ *
+ * @param {User} user
+ */
+export function updateUser(user) {
+  return {
+    type: $.UPDATE_USER,
+    payload: user,
+  };
+}
+
+/**
  * @param {string} userName
  */
-export function delUser(userName) {
+export function delUser(userId) {
   return {
     type: $.DEL_USER,
-    payload: userName,
+    payload: {
+      id: userId
+    },
   }
 }
 

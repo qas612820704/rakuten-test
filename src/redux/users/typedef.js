@@ -1,5 +1,6 @@
 /**
  * @typedef {object} User
+ * @property {string} id
  * @property {number} number
  * @property {string} name
  * @property {string} phone

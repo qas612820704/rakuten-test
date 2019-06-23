@@ -31,20 +31,16 @@ export default () => {
 
   return (
     <div>
-      <table>
-        <thead>
-          <tr>
-            <th>No.</th>
-            <th>Name</th>
-            <th>Phone</th>
-            <th>*Email</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
+      <div>
+        <div>
+          <span>No.</span>
+          <span>Name</span>
+          <span>Phone</span>
+          <span>*Email</span>
+          <span>Action</span>
+        </div>
         { userNames.map(name => <UserRow key={name} name={name} />)}
-        </tbody>
-      </table>
+      </div>
       <form onSubmit={handleSubmit}>
         <input type="submit" value="Add User" />
         <input name="name" type="text" value={newUser.name} onChange={e => setNewUser({ ...newUser, name: e.target.value })}/>

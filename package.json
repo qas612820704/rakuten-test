@@ -6,10 +6,12 @@
   "license": "MIT",
   "scripts": {
     "build": "gatsby build",
+    "build:prefix-paths": "gatsby build --prefix-paths",
     "develop": "gatsby develop",
     "format": "prettier --write src/**/*.{js,jsx}",
     "start": "npm run develop",
     "serve": "gatsby serve",
+    "deploy": "yarn build:prefix-paths && gh-pages -d public",
     "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\""
   },
   "dependencies": {
@@ -27,6 +29,7 @@
     "validator": "^11.0.0"
   },
   "devDependencies": {
+    "gh-pages": "^2.0.1",
     "prettier": "^1.18.2"
   },
   "repository": {

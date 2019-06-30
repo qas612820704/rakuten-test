@@ -1,5 +1,6 @@
 import uuid from 'uuid/v4';
 import faker from 'faker';
+import { isMobilePhone, isEmail } from 'validator';
 import { mapValues, pickBy } from 'lodash';
 import * as $ from './constants';
 import user from './user';
@@ -57,18 +58,59 @@ const nameInUsed = (state = new Set(), action) => {
   }
 }
 
+function userValidator(user, state) {
+  user = {
+    name: user.name.trim(),
+    phone: user.phone.trim(),
+    email: user.email.trim(),
+  };
+
+  const nameInUsed = state.users.nameInUsed;
+  const originalUser = state.users.byId[user.id];
+  const error = {};
+
+  if(!user.name) {
+    error.name = "Name can't be null";
+  }
+
+  if (nameInUsed.has(user.name) && originalUser && originalUser.name !== user.name) {
+    if (!originalUser) {
+      error.name = `${user.name} already in used`;
+    }
+  }
+
+  if (!isMobilePhone(user.phone) && user.phone !== '') {
+    error.phone = `Not Valid Format`;
+  }
+
+  if (!isEmail(user.email)) {
+    error.email = 'Not Valid Format';
+  }
+
+  if (user.email === '') {
+    error.email = "Email can't be null";
+  }
+
+  return Object.keys(error).length > 0 ? error : null;
+}
+
 /**
  * @param {User} user
  */
 export function addUser(user) {
   return (dispatch, getState) => {
-    const { nameInUsed } = getState().users;
+    user = {
+      name: '',
+      phone: '',
+      email: '',
+      ...user,
+    };
 
-    if (nameInUsed.has(user.name)) {
-      throw new Error(`${user.name} already in used`);
-    }
+    const error = userValidator(user, getState());
 
-    dispatch({
+    if (error) throw error;
+
+    return dispatch({
       type: $.ADD_USER,
       payload: {
         id: uuid(),
@@ -80,7 +122,6 @@ export function addUser(user) {
 
 export function addRandomUser() {
   return addUser({
-    id: uuid(),
     name: faker.name.firstName(),
     phone: faker.phone.phoneNumber('09########'),
     email: faker.internet.email(),
@@ -93,8 +134,13 @@ export function addRandomUser() {
  */
 export function updateUser(modifiedUser) {
   return (dispatch, getState) => {
-    const user = getState().users.byId[modifiedUser.id];
+    const state = getState();
 
+    const error = userValidator(modifiedUser, state);
+
+    if (error) throw error;
+
+    const user = state.users.byId[modifiedUser.id];
     dispatch({
       type: $.UPDATE_USER,
       original: user,

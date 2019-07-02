@@ -10,7 +10,7 @@ const MTableEditFieldWithErrorHandler = props => {
   const { columnDef, rowData, errors } = props;
   const field = columnDef.field;
 
-  const isNewRow = !rowData.id && (errors.id === 'new users');
+  const isNewRow = !rowData.id && (errors.id === 'new user');
 
   const error = ((rowData.id === errors.id) || isNewRow) && errors[field];
 
@@ -77,7 +77,7 @@ export default () => {
               return dispatch(addUser(newUser));
             } catch (e) {
               setFormErrors({
-                id: newUser.id,
+                id: 'new user',
                 ...e,
               });
               throw e;
@@ -89,7 +89,7 @@ export default () => {
               return dispatch(updateUser(updatedUser));
             } catch (e) {
               setFormErrors({
-                id: 'new user',
+                id: updatedUser.id,
                 ...e,
               });
               throw e;

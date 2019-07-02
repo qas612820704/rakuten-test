@@ -60,6 +60,7 @@ const nameInUsed = (state = new Set(), action) => {
 
 function userValidator(user, state) {
   user = {
+    ...user,
     name: user.name.trim(),
     phone: user.phone.trim(),
     email: user.email.trim(),
@@ -74,9 +75,7 @@ function userValidator(user, state) {
   }
 
   if (nameInUsed.has(user.name) && originalUser && originalUser.name !== user.name) {
-    if (!originalUser) {
-      error.name = `${user.name} already in used`;
-    }
+    error.name = `${user.name} already in used`;
   }
 
   if (!isMobilePhone(user.phone) && user.phone !== '') {
